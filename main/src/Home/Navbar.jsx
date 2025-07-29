@@ -7,7 +7,7 @@ const Navbar = () => {
     <nav className="border-b border-gray-800  bg-[#0A0F1D] backdrop-blur-sm sticky top-0 z-50">
       <div className="sticky flex flex-cols-2  justify-between items-center ">
         <div className=" py-4 gest font-bold text-xl flex items-center space-x-2">
-          <TbMovie color="#C084FC" />
+          <TbMovie color="#C084FC" className="text-4xl" />
           <div className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold ">
             MovieApp
           </div>
