@@ -5,7 +5,7 @@ import MyMovies from "./My Movies/MyMovies";
 
 function App() {
   return (
-    <div className="">
+    <div className="bg-[#030712] w-full h-screen">
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
