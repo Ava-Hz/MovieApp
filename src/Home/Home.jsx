@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "./Navbar";
 import SearchBar from "./SearchBar";
 import AllMovies from "./AllMovies";
 
 const Home = ({ selectedMovies, setSelectedMovies }) => {
+  const [searchedMovie, setSearchedMovie] = useState(null);
+
   return (
     <div>
       <Navbar />
@@ -14,10 +16,15 @@ const Home = ({ selectedMovies, setSelectedMovies }) => {
         <p className="text-gray-400 text-xl gest">
           Find your next favorite film
         </p>
-        <SearchBar />
+        <SearchBar
+          searchedMovie={searchedMovie}
+          setSearchedMovie={setSearchedMovie}
+        />
         <AllMovies
           selectedMovies={selectedMovies}
           setSelectedMovies={setSelectedMovies}
+          searchedMovie={searchedMovie}
+          setSearchedMovie={setSearchedMovie}
         />
       </div>
     </div>

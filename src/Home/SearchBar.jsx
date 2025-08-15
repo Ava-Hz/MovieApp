@@ -1,45 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IoSearchOutline } from "react-icons/io5";
-import { useState, useEffect } from "react";
 import axios from "axios";
 
-const SearchBar = () => {
+const SearchBar = ({ setSearchedMovie }) => {
   const [search, setSearch] = useState("");
-
   const [movies, setMovies] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
+  // Fetch all pages of movies
   useEffect(() => {
-    const fetchAllMovies = async () => {
+    const fetchMovies = async () => {
       try {
-        // First fetch page 1 to get total pages
-        const res = await axios.get(
+        const firstPage = await axios.get(
           `https://moviesapi.ir/api/v1/movies?page=1`
         );
-        const totalPages = res.data.metadata.page_count;
+        const totalPages = firstPage.data.metadata.page_count;
 
-        // Prepare requests for all pages
         const requests = [];
-        for (let page = 1; page <= totalPages; page++) {
+        for (let i = 1; i <= totalPages; i++) {
           requests.push(
-            axios.get(`https://moviesapi.ir/api/v1/movies?page=${page}`)
+            axios.get(`https://moviesapi.ir/api/v1/movies?page=${i}`)
           );
         }
 
-        // Execute all requests in parallel
         const responses = await Promise.all(requests);
-
-        // Combine all movies into a single array
-        const allMovies = responses.flatMap((r) => r.data.data);
+        const allMovies = responses.flatMap((res) => res.data.data);
         setMovies(allMovies);
-      } catch (error) {
-        console.error("Failed to fetch movies:", error);
+      } catch (err) {
+        console.error(err);
       }
     };
 
-    fetchAllMovies();
+    fetchMovies();
   }, []);
 
-  // Filter movies based on search input
   const filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(search.toLowerCase())
   );
@@ -47,22 +41,26 @@ const SearchBar = () => {
   return (
     <div className="relative mb-8 max-w-2xl mt-5">
       <div className="relative">
-        <IoSearchOutline className=" absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 " />
+        <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onFocus={() => setShowDropdown(true)}
+          onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // keep dropdown on click
           placeholder="Search For Movies..."
-          className="w-full sm:w-96 md:w-[28rem] lg:w-[36rem] pl-10 pr-12 rounded-md  h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-550 text-sm focus:border-purple-500 focus:ring-purple-500 transition-all duration-200"
+          className="w-full sm:w-96 md:w-[28rem] lg:w-[36rem] pl-10 pr-12 rounded-md h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-550 text-sm focus:border-purple-500 focus:ring-purple-500 transition-all duration-200"
         />
       </div>
-      {search && (
+
+      {(showDropdown || search) && (
         <ul className="mt-2 bg-gray-700 rounded-md max-h-64 overflow-auto">
           {filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
               <li
                 key={movie.id}
                 className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                onMouseDown={() => setSearchedMovie(movie)} // sets selected movie
               >
                 {movie.title}
               </li>
