@@ -1,8 +1,9 @@
 import React from "react";
 import Navbar from "./Navbar";
 import SearchBar from "./SearchBar";
+import AllMovies from "./AllMovies";
 
-const Home = () => {
+const Home = ({ selectedMovies, setSelectedMovies }) => {
   return (
     <div>
       <Navbar />
@@ -14,6 +15,10 @@ const Home = () => {
           Find your next favorite film
         </p>
         <SearchBar />
+        <AllMovies
+          selectedMovies={selectedMovies}
+          setSelectedMovies={setSelectedMovies}
+        />
       </div>
     </div>
   );
