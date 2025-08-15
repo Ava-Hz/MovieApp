@@ -1,9 +1,49 @@
 import React from "react";
 import { IoSearchOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 const SearchBar = () => {
   const [search, setSearch] = useState("");
+
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    const fetchAllMovies = async () => {
+      try {
+        // First fetch page 1 to get total pages
+        const res = await axios.get(
+          `https://moviesapi.ir/api/v1/movies?page=1`
+        );
+        const totalPages = res.data.metadata.page_count;
+
+        // Prepare requests for all pages
+        const requests = [];
+        for (let page = 1; page <= totalPages; page++) {
+          requests.push(
+            axios.get(`https://moviesapi.ir/api/v1/movies?page=${page}`)
+          );
+        }
+
+        // Execute all requests in parallel
+        const responses = await Promise.all(requests);
+
+        // Combine all movies into a single array
+        const allMovies = responses.flatMap((r) => r.data.data);
+        setMovies(allMovies);
+      } catch (error) {
+        console.error("Failed to fetch movies:", error);
+      }
+    };
+
+    fetchAllMovies();
+  }, []);
+
+  // Filter movies based on search input
+  const filteredMovies = movies.filter((movie) =>
+    movie.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="relative mb-8 max-w-2xl mt-5">
       <div className="relative">
@@ -11,10 +51,27 @@ const SearchBar = () => {
         <input
           type="text"
           value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search For Movies..."
           className="w-full sm:w-96 md:w-[28rem] lg:w-[36rem] pl-10 pr-12 rounded-md  h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-550 text-sm focus:border-purple-500 focus:ring-purple-500 transition-all duration-200"
         />
       </div>
+      {search && (
+        <ul className="mt-2 bg-gray-700 rounded-md max-h-64 overflow-auto">
+          {filteredMovies.length > 0 ? (
+            filteredMovies.map((movie) => (
+              <li
+                key={movie.id}
+                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+              >
+                {movie.title}
+              </li>
+            ))
+          ) : (
+            <li className="p-2 text-gray-400">No movies found</li>
+          )}
+        </ul>
+      )}
     </div>
   );
 };
